@@ -1,0 +1,24 @@
+[30-Jun-2024 03:59:43 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/ibajarco/public_html/config/database.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/ibajarco/public_html/config/database.php on line 18
+[08-Jul-2026 13:59:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/carprice/laravel.ajkerit.com/config/database.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/carprice/laravel.ajkerit.com/config/database.php on line 18
+[08-Jul-2026 13:59:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/carprice/laravel.ajkerit.com/config/mail.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/carprice/laravel.ajkerit.com/config/mail.php on line 16
+[08-Jul-2026 13:59:29 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/carprice/laravel.ajkerit.com/config/app.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/carprice/laravel.ajkerit.com/config/app.php on line 18
+[08-Jul-2026 13:59:29 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/carprice/laravel.ajkerit.com/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/carprice/laravel.ajkerit.com/config/services.php on line 18
+[08-Jul-2026 14:02:18 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/carprice/laravel.ajkerit.com/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/carprice/laravel.ajkerit.com/config/cache.php on line 18
