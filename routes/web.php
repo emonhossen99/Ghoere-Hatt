@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\ShippingChargeController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\TagManagerController;
+use App\Http\Controllers\Admin\AnnouncementController;
 
 Auth::routes();
 
@@ -234,6 +235,10 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::post('orderstatus/inactive', [OrderStatusController::class,'inactive'])->name('orderstatus.inactive');
     Route::post('orderstatus/active', [OrderStatusController::class,'active'])->name('orderstatus.active');
     Route::post('orderstatus/destroy', [OrderStatusController::class,'destroy'])->name('orderstatus.destroy');
+
+    // announcement
+    Route::get('announcement', [AnnouncementController::class, 'index'])->name('announcement.index');
+    Route::post('announcement/update', [AnnouncementController::class, 'update'])->name('announcement.update');
     
     // pixels
     Route::get('pixels/manage', [PixelsController::class,'index'])->name('pixels.index');

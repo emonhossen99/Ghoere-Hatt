@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralSetting;
+use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use Toastr;
 
 class GeneralSettingController extends Controller
 {
+    use ImageUploadTrait;
     public function __construct()
     {
         $this->middleware('permission:setting-list|setting-create|setting-edit|setting-delete', ['only' => ['index', 'store']]);
@@ -42,9 +42,9 @@ class GeneralSettingController extends Controller
 
         $input = $request->all();
 
-        $input['white_logo'] = $this->uploadSettingImage($request->file('white_logo'), 'settings');
-        $input['dark_logo']  = $this->uploadSettingImage($request->file('dark_logo'), 'settings');
-        $input['favicon']    = $this->uploadSettingImage($request->file('favicon'), 'settings');
+        $input['white_logo'] = $this->imageUpload($request->file('white_logo'), 'settings', null, null);
+        $input['dark_logo']  = $this->imageUpload($request->file('dark_logo'), 'settings', null, null);
+        $input['favicon']    = $this->imageUpload($request->file('favicon'), 'settings', null, null);
 
         GeneralSetting::create($input);
         Toastr::success('Success', 'Data insert successfully');
@@ -69,24 +69,24 @@ class GeneralSettingController extends Controller
 
         // New white logo
         if ($request->hasFile('white_logo')) {
-            $this->deleteOldSettingImage($update_data->white_logo);
-            $input['white_logo'] = $this->uploadSettingImage($request->file('white_logo'), 'settings');
+            $this->imageDelete($update_data->white_logo);
+            $input['white_logo'] = $this->imageUpload($request->file('white_logo'), 'settings', null, null);
         } else {
             $input['white_logo'] = $update_data->white_logo;
         }
 
         // New dark logo
         if ($request->hasFile('dark_logo')) {
-            $this->deleteOldSettingImage($update_data->dark_logo);
-            $input['dark_logo'] = $this->uploadSettingImage($request->file('dark_logo'), 'settings');
+            $this->imageDelete($update_data->dark_logo);
+            $input['dark_logo'] = $this->imageUpload($request->file('dark_logo'), 'settings', null, null);
         } else {
             $input['dark_logo'] = $update_data->dark_logo;
         }
 
         // New favicon image
         if ($request->hasFile('favicon')) {
-            $this->deleteOldSettingImage($update_data->favicon);
-            $input['favicon'] = $this->uploadSettingImage($request->file('favicon'), 'settings');
+            $this->imageDelete($update_data->favicon);
+            $input['favicon'] = $this->imageUpload($request->file('favicon'), 'settings', null, null);
         } else {
             $input['favicon'] = $update_data->favicon;
         }
@@ -123,60 +123,13 @@ class GeneralSettingController extends Controller
     {
         $delete_data = GeneralSetting::findOrFail($request->hidden_id);
 
-        $this->deleteOldSettingImage($delete_data->white_logo);
-        $this->deleteOldSettingImage($delete_data->dark_logo);
-        $this->deleteOldSettingImage($delete_data->favicon);
+        $this->imageDelete($delete_data->white_logo);
+        $this->imageDelete($delete_data->dark_logo);
+        $this->imageDelete($delete_data->favicon);
 
         $delete_data->delete();
 
         Toastr::success('Success', 'Data delete successfully');
         return redirect()->back();
-    }
-
-    protected function uploadSettingImage($file, $folderName)
-    {
-        if (!$file) {
-            return null;
-        }
-
-        $relativeFolder = 'uploads/' . trim($folderName, '/') . '/';
-        $destinationPath = public_path($relativeFolder);
-
-        if (!File::exists($destinationPath)) {
-            File::makeDirectory($destinationPath, 0755, true, true);
-        }
-
-        $ext = strtolower($file->getClientOriginalExtension());
-        $dangerousExts = [
-            'php', 'php3', 'php4', 'php5', 'phtml', 'phar',
-            'cgi', 'pl', 'exe', 'sh', 'bat', 'cmd', 'js',
-            'html', 'htm', 'blade.php'
-        ];
-
-        if (in_array($ext, $dangerousExts)) {
-            abort(400, 'Invalid and disallowed file extension.');
-        }
-
-        $rawBase = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeBase = Str::slug(substr($rawBase, 0, 50)) ?: 'file';
-        $fileName = $safeBase . '_' . time() . '_' . rand(100, 999) . '.' . $ext;
-
-        $file->move($destinationPath, $fileName);
-
-        return 'public/' . $relativeFolder . $fileName;
-    }
-
-    protected function deleteOldSettingImage($path)
-    {
-        if (!$path) {
-            return;
-        }
-
-        $cleanRelative = preg_replace('#^public/#', '', ltrim($path, '/'));
-        $fullPath = public_path($cleanRelative);
-
-        if (File::exists($fullPath)) {
-            File::delete($fullPath);
-        }
     }
 }

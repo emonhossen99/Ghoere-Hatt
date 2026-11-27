@@ -110,7 +110,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="purchase_price" class="form-label">Purchase Price *</label>
-                <input type="text" class="form-control @error('purchase_price') is-invalid @enderror" name="purchase_price" value="{{ old('purchase_price') }}" id="purchase_price" required />
+                <input type="number" min="0" step="1" class="form-control @error('purchase_price') is-invalid @enderror" name="purchase_price" value="{{ old('purchase_price') }}" id="purchase_price" required />
                 @error('purchase_price')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -122,8 +122,8 @@
             <!-- col-end -->
             <div class="col-sm-4">
               <div class="form-group mb-3">
-                <label for="old_price" class="form-label">Old Price *</label>
-                <input type="text" class="form-control @error('old_price') is-invalid @enderror" name="old_price" value="{{ old('old_price') }}" id="old_price" />
+                <label for="old_price" class="form-label">Old Price</label>
+                <input type="number" min="0" step="1" class="form-control @error('old_price') is-invalid @enderror" name="old_price" value="{{ old('old_price') }}" id="old_price" />
                 @error('old_price')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -135,7 +135,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="new_price" class="form-label">New Price *</label>
-                <input type="text" class="form-control @error('new_price') is-invalid @enderror" name="new_price" value="{{ old('new_price') }}" id="new_price" required />
+                <input type="number" min="0" step="1" class="form-control @error('new_price') is-invalid @enderror" name="new_price" value="{{ old('new_price') }}" id="new_price" required />
                 @error('new_price')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -147,7 +147,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="stock" class="form-label">Stock *</label>
-                <input type="text" class="form-control @error('stock') is-invalid @enderror" name="stock" value="{{ old('stock') }}" id="stock" />
+                <input type="number" min="0" step="1" class="form-control @error('stock') is-invalid @enderror" name="stock" value="{{ old('stock') }}" id="stock" required />
                 @error('stock')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -194,7 +194,7 @@
             <div class="col-sm-6">
               <div class="form-group mb-3">
                 <label for="pro_video" class="form-label">Product Video (Optional)</label>
-                <input type="text" class="form-control @error('pro_video') is-invalid @enderror" name="pro_unit" value="{{ old('pro_video') }}" id="pro_video" />
+                <input type="text" class="form-control @error('pro_video') is-invalid @enderror" name="pro_video" value="{{ old('pro_video') }}" id="pro_video" />
                 @error('pro_video')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -207,7 +207,6 @@
               <div class="form-group mb-3">
                 <label for="roles" class="form-label">Size (Option)</label>
                 <select class="form-control select2" name="proSize[]" multiple="multiple">
-                  <option value="">Select</option>
                   @foreach($sizes as $size)
                   <option value="{{$size->id}}">{{$size->sizeName}}</option>
                   @endforeach
@@ -224,7 +223,6 @@
               <div class="form-group mb-3">
                 <label for="color" class="form-label">Color (Optional)</label>
                 <select class="form-control select2" name="proColor[]" multiple="multiple">
-                  <option value="">Select</option>
                   @foreach($colors as $color)
                   <option value="{{$color->id}}">{{$color->colorName}}</option>
                   @endforeach
@@ -240,7 +238,7 @@
             <div class="col-sm-12 mb-3">
               <div class="form-group">
                 <label for="description" class="form-label">Description *</label>
-                <textarea name="description" rows="6" class="summernote form-control @error('description') is-invalid @enderror" required></textarea>
+                <textarea name="description" rows="6" class="summernote form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
                 @error('description')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -249,7 +247,7 @@
               </div>
             </div>
             <!-- col end -->
-           
+
             <!-- col end -->
             <div class="col-sm-3 mb-3">
               <div class="form-group">

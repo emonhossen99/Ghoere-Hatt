@@ -110,6 +110,13 @@
                 </ul>
             </div>
         <header id="navbar_top">
+            @if(isset($announcement) && $announcement->status == 1 && !empty($announcement->text))
+            <div class="header-announcement-bar" style="background-color: {{ $announcement->bg_color ?? '#fe5200' }}; color: {{ $announcement->text_color ?? '#ffffff' }};">
+                <div class="header-announcement-track">
+                    <span class="header-announcement-text">{{ $announcement->text }}</span>
+                </div>
+            </div>
+            @endif
             <div class="mobile-header sticky">
                 <div class="mobile-logo">
                     <div class="menu-bar">

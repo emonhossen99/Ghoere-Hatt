@@ -21,10 +21,10 @@ class PixelsController extends Controller
     {
         $this->validate($request, [
             'code' => 'required',
-            'status' => 'required',
         ]);
         $input = $request->all();
-       EcomPixel::create($input);
+        $input['status'] = $request->status ? 1 : 0;
+        EcomPixel::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('pixels.index');
     }

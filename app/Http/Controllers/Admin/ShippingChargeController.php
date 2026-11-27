@@ -30,12 +30,12 @@ class ShippingChargeController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
-        ]);        
+            'amount' => 'required|integer|min:0',
+        ]);
 
         $input = $request->all();
-        $input['status'] = $request->status?1:0;
-        // dd($input);
+        $input['amount'] = (int) $request->amount;
+        $input['status'] = $request->status ? 1 : 0;
         ShippingCharge::create($input);
         Toastr::success('Success', 'Data insert successfully');
         return redirect()->route('shippingcharges.index');
@@ -51,12 +51,13 @@ class ShippingChargeController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
+            'amount' => 'required|integer|min:0',
         ]);
-        $update_data = ShippingCharge::find($request->id);
+        $update_data = ShippingCharge::findOrFail($request->id);
 
-        $input = $request->all();       
-        $input['status'] = $request->status?1:0;
+        $input = $request->all();
+        $input['amount'] = (int) $request->amount;
+        $input['status'] = $request->status ? 1 : 0;
         $update_data->update($input);
 
         Toastr::success('Success', 'Data update successfully');

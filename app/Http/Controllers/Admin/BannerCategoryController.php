@@ -30,9 +30,9 @@ class BannerCategoryController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
         ]);
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         BannerCategory::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('banner_category.index');

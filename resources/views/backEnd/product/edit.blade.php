@@ -51,7 +51,7 @@
                     @foreach($categories as $category)
                     <option value="{{$category->id}}" @if($edit_data->category_id==$category->id) selected @endif>{{$category->name}}</option>
                     @foreach ($category->childrenCategories as $childCategory)<option value="{{$childCategory->id}}" @if($edit_data->category_id==$childCategory->id) selected @endif>- {{$childCategory->name}}</option>
-                    } @endforeach @endforeach
+                    @endforeach @endforeach
                   </optgroup>
                 </select>
                 @error('category_id')
@@ -69,7 +69,7 @@
                   <optgroup>
                     <option value="">Select..</option>
                     @foreach($subcategory as $key=>$value)
-                    <option value="{{$value->id}}">{{$value->subcategoryName}}</option>
+                    <option value="{{$value->id}}" @if($edit_data->subcategory_id==$value->id) selected @endif>{{$value->subcategoryName}}</option>
                     @endforeach
                   </optgroup>
                 </select>
@@ -88,7 +88,7 @@
                   <optgroup>
                     <option value="">Select..</option>
                     @foreach($childcategory as $key=>$value)
-                    <option value="{{$value->id}}">{{$value->childcategoryName}}</option>
+                    <option value="{{$value->id}}" @if($edit_data->childcategory_id==$value->id) selected @endif>{{$value->childcategoryName}}</option>
                     @endforeach
                   </optgroup>
                 </select>
@@ -122,7 +122,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="purchase_price" class="form-label">Purchase Price *</label>
-                <input type="text" class="form-control @error('purchase_price') is-invalid @enderror" name="purchase_price" value="{{ $edit_data->purchase_price}}" id="purchase_price" required />
+                <input type="number" min="0" step="1" class="form-control @error('purchase_price') is-invalid @enderror" name="purchase_price" value="{{ $edit_data->purchase_price}}" id="purchase_price" required />
                 @error('purchase_price')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -133,8 +133,8 @@
             <!-- col-end -->
             <div class="col-sm-4">
               <div class="form-group mb-3">
-                <label for="old_price" class="form-label">Old Price *</label>
-                <input type="text" class="form-control @error('old_price') is-invalid @enderror" name="old_price" value="{{ $edit_data->old_price }}" id="old_price" />
+                <label for="old_price" class="form-label">Old Price</label>
+                <input type="number" min="0" step="1" class="form-control @error('old_price') is-invalid @enderror" name="old_price" value="{{ $edit_data->old_price }}" id="old_price" />
                 @error('old_price')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -146,7 +146,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="new_price" class="form-label">New Price *</label>
-                <input type="text" class="form-control @error('new_price') is-invalid @enderror" name="new_price" value="{{ $edit_data->new_price }}" id="new_price" required />
+                <input type="number" min="0" step="1" class="form-control @error('new_price') is-invalid @enderror" name="new_price" value="{{ $edit_data->new_price }}" id="new_price" required />
                 @error('new_price')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -158,7 +158,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="stock" class="form-label">Stock *</label>
-                <input type="text" class="form-control @error('stock') is-invalid @enderror" name="stock" value="{{ $edit_data->stock }}" id="stock" />
+                <input type="number" min="0" step="1" class="form-control @error('stock') is-invalid @enderror" name="stock" value="{{ $edit_data->stock }}" id="stock" required />
                 @error('stock')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -225,7 +225,6 @@
               <div class="form-group mb-3">
                 <label for="roles" class="form-label">Size (Optional)</label>
                 <select class="form-control select2" name="proSize[]" multiple="multiple">
-                  <option value="">Select</option>
                   @foreach($totalsizes as $totalsize)
                   <option value="{{$totalsize->id}}" @foreach($selectsizes as $selectsize) @if($totalsize->id == $selectsize->size_id)selected="selected"@endif @endforeach>{{$totalsize->sizeName}}</option>
                   @endforeach
@@ -243,7 +242,6 @@
               <div class="form-group mb-3">
                 <label for="color" class="form-label">Color (Optional)</label>
                 <select class="form-control select2" name="proColor[]" multiple="multiple">
-                  <option value="">Select..</option>
                   @foreach($totalcolors as $totalcolor)
                   <option value="{{$totalcolor->id}}" @foreach($selectcolors as $selectcolor) @if($totalcolor->id == $selectcolor->color_id) selected="selected" @endif @endforeach>{{$totalcolor->colorName}} </option>
                   @endforeach
@@ -268,7 +266,7 @@
               </div>
             </div>
             <!-- col end -->
-           
+
             <!-- col end -->
             <div class="col-sm-3 mb-3">
               <div class="form-group">
@@ -300,7 +298,7 @@
               </div>
             </div>
             <!-- col end -->
-            
+
             <div>
               <input type="submit" class="btn btn-success" value="Submit" />
             </div>

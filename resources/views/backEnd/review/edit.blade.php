@@ -85,7 +85,7 @@
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
                             <label for="review" class="form-label">Review *</label>
-                            <textarea name="review"  rows="6" class="summernote form-control @error('review') is-invalid @enderror" required>{{$edit_data->review}}</textarea>
+                            <textarea name="review"  rows="6" class="summernote form-control @error('review') is-invalid @enderror">{{$edit_data->review}}</textarea>
                             @error('review')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

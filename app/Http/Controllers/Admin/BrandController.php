@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Brand;
-use Image;
-use File;
+use App\Traits\ImageUploadTrait;
 use Toastr;
 class BrandController extends Controller
 {
+    use ImageUploadTrait;
     
     public function index(Request $request)
     {
@@ -24,33 +24,15 @@ class BrandController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
         ]);
-        // image with intervention 
-        $image = $request->file('image');
-        if($image){
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/brand/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 210;
-            $height = 210;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl); 
-        }else{
-            $imageUrl = NULL;
-        }
+        // image with intervention
+        $imageUrl = $this->imageUpload($request->file('image'), 'brand', 210, 210);
        
 
         $input = $request->all();
         $input['slug'] = strtolower(preg_replace('/\s+/u', '-', trim($request->name)));
         $input['image'] = $imageUrl;
+        $input['status'] = $request->status ? 1 : 0;
         Brand::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('brands.index');
@@ -71,23 +53,8 @@ class BrandController extends Controller
         $input = $request->all();
         $image = $request->file('image');
         if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/brand/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 210;
-            $height = 210;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-            $input['image'] = $imageUrl;
-            File::delete($update_data->image);
+            $this->imageDelete($update_data->image);
+            $input['image'] = $this->imageUpload($image, 'brand', 210, 210);
         }else{
             $input['image'] = $update_data->image;
         }
@@ -117,6 +84,7 @@ class BrandController extends Controller
     public function destroy(Request $request)
     {
         $delete_data = Brand::find($request->hidden_id);
+        $this->imageDelete($delete_data->image);
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();

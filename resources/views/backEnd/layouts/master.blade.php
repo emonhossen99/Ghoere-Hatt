@@ -407,6 +407,9 @@
                     <li>
                       <a href="{{route('orderstatus.index')}}"><i data-feather="file-plus"></i> Order Status</a>
                     </li>
+                    <li>
+                      <a href="{{route('announcement.index')}}"><i data-feather="file-plus"></i> Announcement</a>
+                    </li>
                   </ul>
                 </div>
               </li>

@@ -41,18 +41,16 @@ class ChildcategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'subcategory_id' => 'required',
+            'subcategory_id' => 'required|integer',
             'childcategoryName' => 'required',
-            'status' => 'required',
         ]);
-        // image with intervention 
-        
-        
+
         $input = $request->all();
 
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->childcategoryName));
         $input['slug'] = str_replace('/', '', $input['slug']);
-        
+        $input['status'] = $request->status ? 1 : 0;
+
         Childcategory::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('childcategories.index');
@@ -68,9 +66,8 @@ class ChildcategoryController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-            'subcategory_id' => 'required',
+            'subcategory_id' => 'required|integer',
             'childcategoryName' => 'required',
-            'status' => 'required',
         ]);
         $update_data = Childcategory::find($request->id);
         $input = $request->all();

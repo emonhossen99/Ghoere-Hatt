@@ -1,0 +1,2 @@
+[24-Nov-2026 23:59:37 Asia/Dhaka] PHP Fatal error:  Trait "App\Http\Controllers\Admin\Illuminate\Support\Facades\File" not found in /home/ghorlywq/public_html/app/Http/Controllers/Admin/GeneralSettingController.php on line 13
+[25-Nov-2026 00:01:48 Asia/Dhaka] PHP Fatal error:  Cannot redeclare App\Http\Controllers\Admin\GeneralSettingController::uploadSettingImage() in /home/ghorlywq/public_html/app/Http/Controllers/Admin/GeneralSettingController.php on line 137

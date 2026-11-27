@@ -14,14 +14,14 @@ use App\Models\Childcategory;
 use App\Models\Brand;
 use App\Models\Color;
 use App\Models\Size;
+use App\Traits\ImageUploadTrait;
 use Toastr;
-use File;
 use Str;
-use Image;
 use DB;
 
 class ProductController extends Controller
 {
+    use ImageUploadTrait;
     public function getSubcategory(Request $request)
     {
         $subcategory = DB::table("subcategories")
@@ -68,11 +68,11 @@ class ProductController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'category_id' => 'required',
-            'new_price' => 'required',
-            'purchase_price' => 'required',
-            'stock' => 'required',
-            'category_id' => 'required',
+            'category_id' => 'required|integer',
+            'new_price' => 'required|numeric|min:0',
+            'purchase_price' => 'required|numeric|min:0',
+            'old_price' => 'nullable|numeric|min:0',
+            'stock' => 'required|integer|min:0',
             'description' => 'required',
         ]);
         $last_id = Product::orderBy('id', 'desc')->select('id')->first();
@@ -80,42 +80,38 @@ class ProductController extends Controller
         $input = $request->except(['image','files','proSize','proColor']);
 
         $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$last_id));
-
+        $input['purchase_price'] = (int) $request->purchase_price;
+        $input['old_price'] = $request->filled('old_price') ? (int) $request->old_price : null;
+        $input['new_price'] = (int) $request->new_price;
+        $input['stock'] = (int) $request->stock;
         $input['status'] = $request->status?1:0;
         $input['topsale'] = $request->topsale?1:0;
         $input['feature_product'] = $request->feature_product?1:0;
         $input['product_code'] = 'P' . str_pad($last_id, 4, '0', STR_PAD_LEFT);
         $save_data = Product::create($input);
-        $save_data->sizes()->attach($request->proSize);
-        $save_data->colors()->attach($request->proColor);
-        
-        // image with intervention 
-        $images = $request->file('image');
-        if($images){
-            foreach ($images as $key => $image) {
-                $name =  time().'-'.$image->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-            	$uploadPath = 'public/uploads/product/';
-            	$image->move($uploadPath,$name);
-            	$imageUrl =$uploadPath.$name;
 
-                $pimage             = new Productimage();
-                $pimage->product_id = $save_data->id;
-                $pimage->image      = $imageUrl;
-                $pimage->save();
-            }
-            
+        $sizes = array_filter((array) $request->proSize);
+        if (!empty($sizes)) {
+            $save_data->sizes()->attach($sizes);
         }
+
+        $colors = array_filter((array) $request->proColor);
+        if (!empty($colors)) {
+            $save_data->colors()->attach($colors);
+        }
+
+        // image with intervention
+        $this->saveProductImages($request->file('image'), $save_data->id);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('products.index');
     }
     
     public function edit($id)
     {
-        $edit_data = Product::with('images')->find($id);
-        $categories = Category::where('parent_id','=','0')->where('status',1)->select('id','name','status')->get();
-        $categoryId = Product::find($id)->category_id;
-        $subcategoryId = Product::find($id)->subcategory_id;
+        $edit_data = Product::with('images')->findOrFail($id);
+        $categories = Category::where('parent_id','=','0')->where('status',1)->select('id','name','status')->with('childrenCategories')->get();
+        $categoryId = $edit_data->category_id;
+        $subcategoryId = $edit_data->subcategory_id;
         $subcategory = Subcategory::where('category_id', '=', $categoryId)->select('id','subcategoryName','status')->get();
         $childcategory = Childcategory::where('subcategory_id', '=', $subcategoryId)->select('id', 'childcategoryName', 'status')->get();
         $brands = Brand::where('status','1')->select('id','name','status')->get();
@@ -155,45 +151,53 @@ class ProductController extends Controller
     {
        $this->validate($request, [
             'name' => 'required',
-            'category_id' => 'required',
-            'new_price' => 'required',
-            'purchase_price' => 'required',
-            'stock' => 'required',
-            'category_id' => 'required',
+            'category_id' => 'required|integer',
+            'new_price' => 'required|numeric|min:0',
+            'purchase_price' => 'required|numeric|min:0',
+            'old_price' => 'nullable|numeric|min:0',
+            'stock' => 'required|integer|min:0',
             'description' => 'required',
         ]);
           
-        $update_data = Product::find($request->id);
+        $update_data = Product::findOrFail($request->id);
         $input = $request->except(['image','files','proSize','proColor']);
-        $last_id = Product::orderBy('id', 'desc')->select('id')->first();
-        $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$last_id->id));
+        $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$update_data->id));
+        $input['purchase_price'] = (int) $request->purchase_price;
+        $input['old_price'] = $request->filled('old_price') ? (int) $request->old_price : null;
+        $input['new_price'] = (int) $request->new_price;
+        $input['stock'] = (int) $request->stock;
         $input['status'] = $request->status?1:0;
         $input['topsale'] = $request->topsale?1:0;
         $input['feature_product'] = $request->feature_product?1:0;
         $update_data->update($input);
-        $update_data->sizes()->sync($request->proSize);
-        $update_data->colors()->sync($request->proColor);
+        $update_data->sizes()->sync(array_filter((array) $request->proSize));
+        $update_data->colors()->sync(array_filter((array) $request->proColor));
 
-        // image with intervention 
-        $images = $request->file('image');
-        if($images){
-            foreach ($images as $key => $image) {
-                $name =  time().'-'.$image->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-            	$uploadPath = 'public/uploads/product/';
-            	$image->move($uploadPath,$name);
-            	$imageUrl =$uploadPath.$name;
+        // image with intervention
+        $this->saveProductImages($request->file('image'), $update_data->id);
 
+        Toastr::success('Success','Data update successfully');
+        return redirect()->route('products.index');
+    }
+
+    /**
+     * Store uploaded product images using ImageUploadTrait and record them in DB.
+     */
+    private function saveProductImages($images, $productId)
+    {
+        if (!$images) {
+            return;
+        }
+
+        foreach ($images as $image) {
+            $imageUrl = $this->imageUpload($image, 'product', null, null);
+            if ($imageUrl) {
                 $pimage             = new Productimage();
-                $pimage->product_id = $update_data->id;
+                $pimage->product_id = $productId;
                 $pimage->image      = $imageUrl;
                 $pimage->save();
             }
         }
-        
-
-        Toastr::success('Success','Data update successfully');
-        return redirect()->route('products.index');
     }
  
     public function inactive(Request $request)
@@ -215,6 +219,10 @@ class ProductController extends Controller
     public function destroy(Request $request)
     {
         $delete_data = Product::find($request->hidden_id);
+        foreach ($delete_data->images as $pimage) {
+            $this->imageDelete($pimage->image);
+            $pimage->delete();
+        }
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
@@ -222,7 +230,7 @@ class ProductController extends Controller
     public function imgdestroy(Request $request)
     { 
         $delete_data = Productimage::find($request->id);
-        File::delete($delete_data->image);
+        $this->imageDelete($delete_data->image);
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();

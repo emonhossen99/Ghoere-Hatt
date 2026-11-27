@@ -30,9 +30,10 @@ class SocialMediaController extends Controller
         $this->validate($request, [
             'title' => 'required',
             'icon' => 'required',
-            'status' => 'required',
+            'link' => 'required',
         ]);
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         SocialMedia::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('socialmedias.index');
@@ -49,9 +50,11 @@ class SocialMediaController extends Controller
         $this->validate($request, [
             'title' => 'required',
             'icon' => 'required',
+            'link' => 'required',
         ]);
         $input = $request->all();
-        $update_data = SocialMedia::find($request->id);
+        $input['status'] = $request->status ? 1 : 0;
+        $update_data = SocialMedia::findOrFail($request->id);
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

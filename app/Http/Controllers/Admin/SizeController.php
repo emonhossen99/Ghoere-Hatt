@@ -28,10 +28,11 @@ class SizeController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'status' => 'required',
+            'sizeName' => 'required',
         ]);
         
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         
         Size::create($input);        
         
@@ -48,11 +49,12 @@ class SizeController extends Controller
     public function update(Request $request)
     { 
         $this->validate($request, [
-            'status' => 'required',
+            'sizeName' => 'required',
         ]);
         // image one
-        $update_data = Size::find($request->id);
+        $update_data = Size::findOrFail($request->id);
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

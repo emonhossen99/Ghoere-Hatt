@@ -29,11 +29,11 @@ class ContactController extends Controller
     {
         $this->validate($request, [
             'phone' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'address' => 'required',
-            'status' => 'required',
         ]);
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         Contact::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('contact.index');
@@ -47,14 +47,15 @@ class ContactController extends Controller
     
     public function update(Request $request)
     {
-        
         $this->validate($request, [
             'phone' => 'required',
-            'hotmail' => 'required',
+            'email' => 'required|email',
+            'hotmail' => 'nullable|email',
             'address' => 'required',
         ]);
         $input = $request->except('hidden_id');
-        $update_data = Contact::find($request->hidden_id);
+        $input['status'] = $request->status ? 1 : 0;
+        $update_data = Contact::findOrFail($request->hidden_id);
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

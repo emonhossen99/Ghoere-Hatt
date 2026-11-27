@@ -28,10 +28,12 @@ class ColorController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'status' => 'required',
+            'colorName' => 'required',
+            'color' => 'required',
         ]);
         
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         
         Color::create($input);        
         
@@ -48,11 +50,13 @@ class ColorController extends Controller
     public function update(Request $request)
     { 
         $this->validate($request, [
-            'status' => 'required',
+            'colorName' => 'required',
+            'color' => 'required',
         ]);
         // image one
-        $update_data = Color::find($request->id);
+        $update_data = Color::findOrFail($request->id);
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

@@ -35,7 +35,7 @@
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
                                 <label for="amount" class="form-label">Amount</label>
-                                <input type="text" class="form-control @error('amount') is-invalid @enderror" name="amount" value="{{ old('amount') }}" id="amount" />
+                                <input type="number" min="0" step="1" class="form-control @error('amount') is-invalid @enderror" name="amount" value="{{ old('amount') }}" id="amount" required />
                                 @error('amount')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

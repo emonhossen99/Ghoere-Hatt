@@ -8,13 +8,13 @@ use Illuminate\Support\Arr;
 use App\Models\CustomerProfit;
 use App\Models\Customer;
 use App\Models\IpBlock;
+use App\Traits\ImageUploadTrait;
 use Toastr;
-use Image;
-use File;
 use Auth;
 use Hash;
 class CustomerManageController extends Controller
 {
+    use ImageUploadTrait;
     public function index(Request $request){
         if($request->keyword){
             $show_data = Customer::orWhere('phone',$request->keyword)->orWhere('name',$request->keyword)->paginate(20);
@@ -51,23 +51,8 @@ class CustomerManageController extends Controller
         // new image
         $image = $request->file('image');
         if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/customer/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 100;
-            $height = 100;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-            $input['image'] = $imageUrl;
-            File::delete($update_data->image);
+            $this->imageDelete($update_data->image);
+            $input['image'] = $this->imageUpload($image, 'customer', 100, 100);
         }else{
             $input['image'] = $update_data->image;
         }

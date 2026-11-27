@@ -24,9 +24,9 @@ class TagManagerController extends Controller
     {
         $this->validate($request, [
             'code' => 'required',
-            'status' => 'required',
         ]);
         $input = $request->all();
+        $input['status'] = $request->status ? 1 : 0;
         GoogleTagManager::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('tagmanagers.index');

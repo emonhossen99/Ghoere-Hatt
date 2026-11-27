@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BannerCategory;
 use App\Models\Banner;
+use App\Traits\ImageUploadTrait;
 use Toastr;
-use Image;
-use File;
 class BannerController extends Controller
 {
+    use ImageUploadTrait;
     function __construct()
     {
          $this->middleware('permission:banner-list|banner-create|banner-edit|banner-delete', ['only' => ['index','store']]);
@@ -33,19 +33,13 @@ class BannerController extends Controller
     {
         $this->validate($request, [
             'link' => 'required',
-            'status' => 'required',
+            'category_id' => 'required|integer',
+            'image' => 'required',
         ]);
         
-        // image with intervention 
-        $file = $request->file('image');
-        $name = time().$file->getClientOriginalName();
-        $uploadPath = 'public/uploads/banner/';
-        $file->move($uploadPath,$name);
-        $fileUrl =$uploadPath.$name;
-
         $input = $request->all();
         $input['status'] = $request->status?1:0;
-        $input['image'] = $fileUrl;
+        $input['image'] = $this->imageUpload($request->file('image'), 'banner', null, null);
         Banner::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('banners.index');
@@ -67,14 +61,8 @@ class BannerController extends Controller
         $input = $request->all();
         $image = $request->file('image');
         if($image){
-           // image with intervention 
-            $file = $request->file('image');
-            $name = time().$file->getClientOriginalName();
-            $uploadPath = 'public/uploads/banner/';
-            $file->move($uploadPath,$name);
-            $fileUrl =$uploadPath.$name;
-            $input['image'] = $fileUrl;
-            File::delete($update_data->image);
+            $this->imageDelete($update_data->image);
+            $input['image'] = $this->imageUpload($image, 'banner', null, null);
         }else{
             $input['image'] = $update_data->image;
         }
@@ -105,6 +93,7 @@ class BannerController extends Controller
     public function destroy(Request $request)
     {
         $delete_data = Banner::find($request->hidden_id);
+        $this->imageDelete($delete_data->image);
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();

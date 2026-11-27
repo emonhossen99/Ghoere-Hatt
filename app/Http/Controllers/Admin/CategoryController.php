@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Traits\ImageUploadTrait;
 use Toastr;
-use Image;
-use File;
 use Str;
 class CategoryController extends Controller
 {
+    use ImageUploadTrait;
     function __construct()
     {
          $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','store']]);
@@ -34,28 +34,9 @@ class CategoryController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
         ]);
-        // image with intervention 
-        $image = $request->file('image');
-        if($image){
-        $name =  time().'-'.$image->getClientOriginalName();
-        $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-        $name = strtolower(preg_replace('/\s+/', '-', $name));
-        $uploadpath = 'public/uploads/category/';
-        $imageUrl = $uploadpath.$name; 
-        $img=Image::make($image->getRealPath());
-        $img->encode('webp', 90);
-        $width = "";
-        $height = "";
-        $img->height() > $img->width() ? $width=null : $height=null;
-        $img->resize($width, $height, function ($constraint) {
-            $constraint->aspectRatio();
-        });
-        $img->save($imageUrl);
-        }else{
-            $imageUrl = null;
-        }
+        // image with intervention
+        $imageUrl = $this->imageUpload($request->file('image'), 'category', null, null);
 
         $input = $request->all();
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->name));
@@ -63,6 +44,7 @@ class CategoryController extends Controller
 
         $input['parent_id'] = $request->parent_id?$request->parent_id:0;
         $input['front_view'] = $request->front_view ? 1 : 0;
+        $input['status'] = $request->status ? 1 : 0;
         $input['image'] = $imageUrl;
         Category::create($input);
         Toastr::success('Success','Data insert successfully');
@@ -85,23 +67,8 @@ class CategoryController extends Controller
         $input = $request->all();
         $image = $request->file('image');
         if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/category/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = "";
-            $height = "";
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-            $input['image'] = $imageUrl;
-            File::delete($update_data->image);
+            $this->imageDelete($update_data->image);
+            $input['image'] = $this->imageUpload($image, 'category', null, null);
         }else{
             $input['image'] = $update_data->image;
         }
@@ -137,6 +104,7 @@ class CategoryController extends Controller
     public function destroy(Request $request)
     {
         $delete_data = Category::find($request->hidden_id);
+        $this->imageDelete($delete_data->image);
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();

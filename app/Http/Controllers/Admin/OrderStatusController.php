@@ -24,10 +24,10 @@ class OrderStatusController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
         ]);
         $input = $request->all();
         $input['slug'] = strtolower(preg_replace('/\s+/u', '-', trim($request->name)));
+        $input['status'] = $request->status ? 1 : 0;
         OrderStatus::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('orderstatus.index');

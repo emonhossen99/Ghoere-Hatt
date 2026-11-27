@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Arr;
 use App\Models\User;
+use App\Traits\ImageUploadTrait;
 use Toastr;
-use Image;
-use File;
 use DB;
 use Hash;
 class UserController extends Controller
 {
+    use ImageUploadTrait;
     public function index(Request $request)
     {
         $data = User::orderBy('id','DESC')->get();
@@ -33,26 +33,13 @@ class UserController extends Controller
             'password' => 'required|same:confirm-password',
             'roles' => 'required'
         ]);
-        // image with intervention 
-        $image = $request->file('image');
-        $name =  time().'-'.$image->getClientOriginalName();
-        $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-        $name = strtolower(preg_replace('/\s+/', '-', $name));
-        $uploadpath = 'public/uploads/users/';
-        $imageUrl = $uploadpath.$name; 
-        $img=Image::make($image->getRealPath());
-        $img->encode('webp', 90);
-        $width = 100;
-        $height = 100;
-        $img->height() > $img->width() ? $width=null : $height=null;
-        $img->resize($width, $height, function ($constraint) {
-            $constraint->aspectRatio();
-        });
-        $img->save($imageUrl);
+        // image with intervention
+        $imageUrl = $this->imageUpload($request->file('image'), 'users', 100, 100) ?? '';
 
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
         $input['image'] = $imageUrl;
+        $input['status'] = $request->status ? 1 : 0;
         
         $user = User::create($input);
         $user->assignRole($request->input('roles'));
@@ -89,23 +76,8 @@ class UserController extends Controller
         // new image
         $image = $request->file('image');
         if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/users/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 100;
-            $height = 100;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-            $input['image'] = $imageUrl;
-            File::delete($update_data->image);
+            $this->imageDelete($update_data->image);
+            $input['image'] = $this->imageUpload($image, 'users', 100, 100);
         }else{
             $input['image'] = $update_data->image;
         }
@@ -139,7 +111,7 @@ class UserController extends Controller
     {
 
         $delete_data = User::find($request->hidden_id);
-        File::delete($delete_data->image);
+        $this->imageDelete($delete_data->image);
         $delete_data->delete();
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();

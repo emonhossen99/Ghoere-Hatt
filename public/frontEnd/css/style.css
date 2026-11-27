@@ -4284,3 +4284,35 @@ td.tfoot_bg {
     margin-bottom: 12px;
 }
 
+.header-announcement-bar {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 6px 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.header-announcement-track {
+    display: inline-block;
+    box-sizing: border-box;
+    min-width: 100%;
+    padding-left: 100%;
+    animation: announcement-rtl 18s linear infinite;
+}
+
+.header-announcement-bar:hover .header-announcement-track {
+    animation-play-state: paused;
+}
+
+@keyframes announcement-rtl {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+

@@ -32,11 +32,11 @@ class CreatePageController extends Controller
             'name' => 'required',
             'title' => 'required',
             'description' => 'required',
-            'status' => 'required',
         ]);
 
         $input = $request->all();
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->name));
+        $input['status'] = $request->status ? 1 : 0;
         CreatePage::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('pages.index');
@@ -57,7 +57,8 @@ class CreatePageController extends Controller
         ]);
         $input = $request->except('hidden_id');
         $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->name));
-        $update_data = CreatePage::find($request->hidden_id);
+        $input['status'] = $request->status ? 1 : 0;
+        $update_data = CreatePage::findOrFail($request->hidden_id);
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

@@ -6,8 +6,8 @@ use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
-use Intervention\Image\Facades\Image;
 use App\Models\Customer;
+use App\Traits\ImageUploadTrait;
 use App\Models\District;
 use App\Models\Order;
 use App\Models\ShippingCharge;
@@ -28,6 +28,7 @@ use DB;
 
 class CustomerController extends Controller
 {
+    use ImageUploadTrait;
     function __construct()
     {
         $this->middleware('customer', ['except' => ['register','store','verify','resendotp','account_verify','login','signin','logout','checkout','forgot_password','forgot_verify','forgot_reset','forgot_store','forgot_resend','order_save','order_success','order_track','order_track_result']]);
@@ -425,18 +426,8 @@ class CustomerController extends Controller
 
         $image = $request->file('image');
         if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(Str::slug($name));
-            $uploadpath = 'public/uploads/customer/';
-            $imageUrl = $uploadpath.$name; 
-            $img = Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 120;
-            $height = 120;
-            $img->resize($width, $height);
-            $img->save($imageUrl);
+            $this->imageDelete($update_data->image);
+            $imageUrl = $this->imageUpload($image, 'customer', 120, 120);
         }else{
             $imageUrl = $update_data->image;
         }

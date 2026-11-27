@@ -32,16 +32,15 @@ class ReviewController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'customer_id' => 'required',
-            'ratting' => 'required',
+            'customer_id' => 'required|integer',
+            'ratting' => 'required|integer|min:1|max:5',
             'review' => 'required',
-            'product_id' => 'required',
-            'status' => 'required',
+            'product_id' => 'required|integer',
         ]);
         $customer = Customer::where('id', $request->customer_id)->first();
         $input = $request->all();
-        $input['name'] = $customer->name ? $customer->name : 'N / A';
-        $input['email'] = $customer->email ? $customer->email : 'N / A';
+        $input['name'] = $customer && $customer->name ? $customer->name : 'N / A';
+        $input['email'] = $customer && $customer->email ? $customer->email : 'N / A';
         $input['status'] = $request->status==1?'active':'pending';
         Review::create($input);
         Toastr::success('Success','Data insert successfully');
@@ -57,17 +56,16 @@ class ReviewController extends Controller
     
     public function update(Request $request)
     {
-        
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required',
-            'ratting' => 'required',
+            'ratting' => 'required|integer|min:1|max:5',
             'review' => 'required',
-            'product_id' => 'required',
+            'product_id' => 'required|integer',
         ]);
         $input = $request->except('hidden_id');
         $input['status'] = $request->status==1?'active':'pending';
-        $update_data = Review::find($request->hidden_id);
+        $update_data = Review::findOrFail($request->hidden_id);
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');
@@ -91,8 +89,10 @@ class ReviewController extends Controller
         $active->save();
         
         $product = Product::select('id','ratting')->find($active->product_id);
-        $product->ratting += 1;
-        $product->save();
+        if ($product) {
+            $product->ratting += 1;
+            $product->save();
+        }
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
     }

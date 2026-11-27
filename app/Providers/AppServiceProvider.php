@@ -14,6 +14,9 @@ use App\Models\EcomPixel;
 use App\Models\GoogleTagManager;
 use App\Models\Order;
 use App\Models\PaymentGateway;
+use App\Models\Announcement;
+use App\Routing\AssetUrlGenerator;
+use Illuminate\Support\Facades\Schema;
 use Config;
 use Session;
 
@@ -26,7 +29,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton('url', function ($app) {
+            $routes = $app['router']->getRoutes();
+
+            $app->instance('routes', $routes);
+
+            return new AssetUrlGenerator(
+                $routes,
+                $app->rebinding('request', function ($app, $request) {
+                    $app['url']->setRequest($request);
+                }),
+                $app['config']['app.asset_url']
+            );
+        });
     }
 
     /**
@@ -87,5 +102,8 @@ class AppServiceProvider extends ServiceProvider
         
         $gtm_code = GoogleTagManager::where('status',1)->get();
         view()->share('gtm_code',$gtm_code);
+
+        $announcement = Schema::hasTable('announcements') ? Announcement::where('status', 1)->first() : null;
+        view()->share('announcement', $announcement);
     }
 }

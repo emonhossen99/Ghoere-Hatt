@@ -93,7 +93,7 @@
                             <div class="col-sm-6 mb-3">
                                 <div class="form-group">
                                     <label for="review" class="form-label">Review *</label>
-                                    <textarea name="review" rows="1" class="summernote form-control @error('review') is-invalid @enderror" required></textarea>
+                                    <textarea name="review" rows="1" class="summernote form-control @error('review') is-invalid @enderror">{{ old('review') }}</textarea>
                                     @error('review')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
