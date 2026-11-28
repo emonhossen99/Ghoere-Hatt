@@ -14,13 +14,13 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
-                
+
                 </div>
                 <h4 class="page-title">Dashboard</h4>
             </div>
         </div>
-    </div>     
-    <!-- end page title --> 
+    </div>
+    <!-- end page title -->
 
     <div class="row">
         <div class="col-md-6 col-xl-3">
@@ -35,7 +35,7 @@
                         <div class="col-6">
                             <div class="text-end">
                                 <h3 class="text-dark mt-1"><span data-plugin="counterup">{{$total_order}}</span></h3>
-                                <p class="text-muted mb-1 text-truncate">Total Oreder</p>
+                                <p class="text-muted mb-1 text-truncate">Total Order</p>
                             </div>
                         </div>
                     </div> <!-- end row-->
@@ -143,7 +143,7 @@
                                 <tr>
                                     <td>{{$loop->iteration}}</td>
                                     <td style="width: 36px;">
-                                        <img src="{{asset($order->product?$order->product->image->image:'')}}" alt="contact-img" title="contact-img" class="rounded-circle avatar-sm" />
+                                        <img src="{{ asset($order->product?->image?->image ?? 'public/backEnd/assets/images/no-image.png') }}" alt="contact-img" title="contact-img" class="rounded-circle avatar-sm" />
                                     </td>
 
                                     <td>
@@ -155,7 +155,7 @@
                                     </td>
 
                                     <td>
-                                        {{$order->customer?$order->customer->name:''}}
+                                        {{$order->customer?->name ?? ''}}
                                     </td>
                                     <td>
                                         {{$order->order_status}}
@@ -216,7 +216,7 @@
                                     </td>
 
                                     <td>
-                                        {{$customer->created_at->format('d-m-Y')}}
+                                        {{$customer->created_at ? $customer->created_at->format('d-m-Y') : ''}}
                                     </td>
 
                                     <td>
@@ -232,7 +232,7 @@
         </div> <!-- end col -->
     </div>
     <!-- end row -->
-    
+
 </div> <!-- container -->
 @endsection
 @section('script')
@@ -247,7 +247,7 @@
     dataColors = $("#total-revenue").data("colors");
     dataColors && (colors = dataColors.split(","));
     var options = {
-          
+
           chart: {
              height: 242,
              type: "radialBar"
@@ -293,7 +293,7 @@
               enabled: !0,
               enabledOnSeries: [1]
            },
-           labels: [@foreach($monthly_sale as $sale) {{date('d', strtotime($sale->date))}} + '-' + {{date('m', strtotime($sale->date))}}+ '-' + {{date('Y', strtotime($sale->date))}}, @endforeach],
+           labels: [@foreach($monthly_sale as $sale) '{{date('d-m-Y', strtotime($sale->date))}}', @endforeach],
            legend: {
               offsetY: 7
            },

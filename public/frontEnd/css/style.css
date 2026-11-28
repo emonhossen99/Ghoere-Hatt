@@ -2374,7 +2374,7 @@ li.recent_pro {
     text-align: center;
 }
 .checkout-shipping h6 a{
-   color: #fe5200; 
+   color: #fe5200;
 }
 .checkout-shipping select {
     font-size: 14px;
@@ -4225,9 +4225,9 @@ td.tfoot_bg {
     z-index: 999;
 }
 .product-details-discount-badge {
-    
+
 }
-.product-details-discount-badge span.sale-badge-text p {     
+.product-details-discount-badge span.sale-badge-text p {
     font-size: 11px;
     color: #fff;
     line-height: 10px;
@@ -4243,7 +4243,7 @@ td.tfoot_bg {
     justify-content: center;
     flex-direction: column;
     color: #fff;
-    
+
 }
 .details-ratting-wrapper {
     margin-bottom: 10px;
@@ -4299,7 +4299,7 @@ td.tfoot_bg {
     box-sizing: border-box;
     min-width: 100%;
     padding-left: 100%;
-    animation: announcement-rtl 18s linear infinite;
+    animation: announcement-rtl 40s linear infinite;
 }
 
 .header-announcement-bar:hover .header-announcement-track {
